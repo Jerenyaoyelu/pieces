@@ -24,8 +24,8 @@ def base64_to_ndarray(base64_string):
 
 def getEmbeddings(
     withCuda: bool,
-    # output: str,
     url: str,
+    output: str,
 ):
     sam = sam_model_registry[model_type](checkpoint=checkpoint)
     if withCuda:
@@ -39,14 +39,14 @@ def getEmbeddings(
     predictor.set_image(img_np)
     image_embedding = predictor.get_image_embedding().cpu().numpy()
     # 生成的文件存到指定地方
-    np.save(os.path.join(project_dir, "npy", "output.npy"), image_embedding)
+    np.save(os.path.join(project_dir, "npy", output), image_embedding)
 
 
 try:
     url = sys.argv[1]
     useCuda = sys.argv[2]
-    print(url)
-    getEmbeddings(bool(useCuda), url)
+    output = sys.argv[3]
+    getEmbeddings(bool(useCuda), url, output)
 except Exception as e:
     sys.stderr.write(str(e))
     sys.stderr.flush()

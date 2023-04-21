@@ -13,11 +13,15 @@ export default async function handler(
       res.status(200).json({ name: 'ok' });
       break;
     case 'POST':
-      const { img } = body;
+      const { img, fileName } = body;
+      if (!fileName) {
+        res.status(400).json({ message: 'fileName is missing' });
+        return;
+      }
       const base64str = await getBase64FromUrlServer(img);
       const python = spawn(
         'python3',
-        ['src/scripts/embedding.py', base64str, 'False'],
+        ['src/scripts/embedding.py', base64str, 'False', fileName],
         {
           env: process.env,
         }
@@ -26,8 +30,9 @@ export default async function handler(
         console.log('AI解析图片中，请稍后...');
       });
       python.stderr.on('data', (data) => {
-        console.log('error', data);
-        res.status(500).json({ message: 'AI学习图片失败' });
+        res
+          .status(500)
+          .json({ message: 'AI学习图片失败, 由于' + data.toString() });
       });
       python.on('close', (code) => {
         res.status(200).json({ name: 'ok', code });
