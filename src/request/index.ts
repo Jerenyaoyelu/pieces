@@ -26,8 +26,7 @@ request.interceptors.response.use(
   }
 );
 
-export const generateImageEmbeddings = (url: string) => {
-  const fileName = new Date().getTime() + '.npy';
+export const generateImageEmbeddings = (url: string, fileName: string) => {
   return request.post('api/embedding', {
     img: url,
     fileName,
