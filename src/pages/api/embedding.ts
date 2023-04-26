@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { spawn } from 'child_process';
-import { getBase64FromUrlServer } from '@/utils/tools';
+import { getBase64FromUrlServer, uploadFile } from '@/utils/tools';
+import path from 'path';
 
 export default async function handler(
   req: NextApiRequest,
@@ -35,8 +36,24 @@ export default async function handler(
           .json({ message: 'AI学习图片失败, 由于' + data.toString() });
       });
       python.on('close', (code) => {
-        res.status(200).json({ name: 'ok', code });
-        console.log(`child process exited with code ${code}`);
+        const filePath = path.join(
+          process.cwd(),
+          '.next/npy',
+          fileName + '.npy'
+        );
+        console.log(`child process exited with code ${code}`, filePath);
+        uploadFile(filePath, fileName + '.npy')
+          .then((respose) => {
+            console.log(respose.filePath);
+            res
+              .status(200)
+              .json({ msg: 'ok', code, filePath: respose.filePath });
+          })
+          .catch((err) => {
+            res
+              .status(200)
+              .json({ msg: 'embeddings文件上传失败', code: 5001, err });
+          });
       });
       break;
     default:

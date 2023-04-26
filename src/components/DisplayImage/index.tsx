@@ -10,6 +10,8 @@ const ort = require("onnxruntime-web");
 /* @ts-ignore */
 import npyjs from "npyjs";
 import { MODEL_DIR } from "../constant";
+import { getOnnxFile } from "@/request";
+import { base64ToArrayBuffer } from "@/utils/tools";
 
 interface ImgProp {
   embedding: string;
@@ -34,19 +36,23 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
   // Initialize the ONNX model. load the image, and load the SAM
   // pre-computed image embedding
   useEffect(() => {
-    // Initialize the ONNX model
     const initModel = async () => {
       try {
         if (MODEL_DIR === undefined) return;
-        const URL: string = MODEL_DIR;
-        const model = await InferenceSession.create(URL);
+        const model = await InferenceSession.create(MODEL_DIR);
         setModel(model);
       } catch (e) {
         console.log(e);
       }
     };
+    // Initialize the ONNX model
     initModel();
+  }, []);
 
+  useEffect(() => {
+    console.log(embedding);
+
+    if (!model) return;
     // Load the image
     const url = new URL(image);
     console.log(url);
@@ -56,7 +62,7 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
     Promise.resolve(loadNpyTensor(embedding, "float32")).then(
       (embedding) => setTensor(embedding)
     );
-  }, []);
+  }, [embedding, image, model])
 
   const loadImage = async (url: URL) => {
     try {
@@ -80,6 +86,8 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
 
   // Decode a Numpy file into a tensor. 
   const loadNpyTensor = async (tensorFile: string, dType: string) => {
+    console.log('pp', tensorFile);
+
     let npLoader = new npyjs();
     const npArray = await npLoader.load(tensorFile);
     const tensor = new ort.Tensor(dType, npArray.data, npArray.shape);

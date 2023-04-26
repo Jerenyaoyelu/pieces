@@ -6,9 +6,9 @@
 
 import React, { useState } from "react";
 import { modelInputProps } from "../helpers/Interfaces";
-import AppContext from "./createContext";
+import ImgContext from "./createContext";
 
-const AppContextProvider = (props: {
+const ImgContextProvider = (props: {
   children: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
 }) => {
   const [clicks, setClicks] = useState<Array<modelInputProps> | null>(null);
@@ -16,7 +16,7 @@ const AppContextProvider = (props: {
   const [maskImg, setMaskImg] = useState<HTMLImageElement | null>(null);
 
   return (
-    <AppContext.Provider
+    <ImgContext.Provider
       value={{
         clicks: [clicks, setClicks],
         image: [image, setImage],
@@ -24,8 +24,8 @@ const AppContextProvider = (props: {
       }}
     >
       {props.children}
-    </AppContext.Provider>
+    </ImgContext.Provider>
   );
 };
 
-export default AppContextProvider;
+export default ImgContextProvider;
