@@ -10,8 +10,6 @@ const ort = require("onnxruntime-web");
 /* @ts-ignore */
 import npyjs from "npyjs";
 import { MODEL_DIR } from "../constant";
-import { getOnnxFile } from "@/request";
-import { base64ToArrayBuffer } from "@/utils/tools";
 
 interface ImgProp {
   embedding: string;
