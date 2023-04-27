@@ -1,4 +1,6 @@
-This is A implementation of Meta SAM in web browser.
+🔥 A web utility Segmenting images using Meta AI's SAM.
+
+> Under construction, more features are coming...
 
 ## Getting Started
 
