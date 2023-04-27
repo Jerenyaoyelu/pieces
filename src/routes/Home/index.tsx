@@ -2,13 +2,13 @@ import { generateImageEmbeddings } from '@/request';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DisplayImg from '@/components/DisplayImage';
-import Image from 'next/image';
-
-const url = 'https://s.newscdn.cn/file/2023/04/f216f82d-4d11-407e-9bfd-2ee479323429.jpeg';
+import { example } from '@/components/constant';
 
 const Home = () => {
-  const [embedding, setEmbedding] = useState<string>('https://jerenlu.oss-cn-beijing.aliyuncs.com/sam/npy/461e2320-67c4-4f66-8e3e-f030543179a4.npy');
+  const [embedding, setEmbedding] = useState<string>(example.embedding);
   const [loading, setLoading] = useState<boolean>(false);
+  const [url, setUrl] = useState<string>(example.url);
+
   const learnImg = () => {
     const filename = uuidv4();
     setLoading(true);
