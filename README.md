@@ -16,12 +16,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## what have done
 
-- [x] generating embeddings with python scripts when consuming a next api endpoint (currently locally)
-- [x] hosting onnx model file in cloud
-- [x] uploading generated embedding npy files to netlify server
+- [x] generate embeddings with python scripts when consuming a next api endpoint (currently locally)
+- [x] host onnx model file in cloud with Aliyun OSS
+- [x] host generated embedding npy files in cloud with Aliyun OSS
+- [x] tackle the cors issue of uploaded npy files
+- [x] tackle the host issue of sam_vit_h_4b8939.pth file
+- [x] put all pieces together and make the app run
 
 ## what to do
 
-- [] tackle the cors issue of uploaded npy files
-- [] tackle the host issue of sam_vit_h_4b8939.pth file
-- [] put all pieces together and make the app run
+- [ ] support uploading image
+- [ ] support extracting specific piece of image
+- [ ] cooler interaction with each piece
