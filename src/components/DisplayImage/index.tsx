@@ -24,12 +24,7 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
   } = useContext(ImgContext)!;
   const [model, setModel] = useState<InferenceSession | null>(null); // ONNX model
   const [tensor, setTensor] = useState<Tensor | null>(null); // Image embedding tensor
-
-  // The ONNX model expects the input to be rescaled to 1024. 
-  // The modelScale state variable keeps track of the scale values.
   const [modelScale, setModelScale] = useState<modelScaleProps | null>(null);
-  const [imagePath, setImagePath] = useState<string>('');
-
 
   // Initialize the ONNX model. load the image, and load the SAM
   // pre-computed image embedding
@@ -48,14 +43,10 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
   }, []);
 
   useEffect(() => {
-    console.log(embedding);
-
-    if (!model) return;
+    if (!model || !embedding || !image) return;
     // Load the image
     const url = new URL(image);
-    console.log(url);
     loadImage(url);
-
     // Load the Segment Anything pre-computed embedding
     Promise.resolve(loadNpyTensor(embedding, "float32")).then(
       (embedding) => setTensor(embedding)
@@ -84,8 +75,6 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
 
   // Decode a Numpy file into a tensor. 
   const loadNpyTensor = async (tensorFile: string, dType: string) => {
-    console.log('pp', tensorFile);
-
     let npLoader = new npyjs();
     const npArray = await npLoader.load(tensorFile);
     const tensor = new ort.Tensor(dType, npArray.data, npArray.shape);

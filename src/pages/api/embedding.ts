@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { spawn } from 'child_process';
-import { getBase64FromUrlServer, uploadFile } from '@/utils/tools';
+import { getBase64FromUrlServer, uploadFileToOss } from '@/utils/tools';
 import path from 'path';
+const fs = require('fs');
 
 export default async function handler(
   req: NextApiRequest,
@@ -43,17 +44,16 @@ export default async function handler(
           '.next/npy',
           fileName + '.npy'
         );
-        uploadFile(filePath, fileName + '.npy')
-          .then((respose) => {
-            console.log(respose.filePath);
-            res
-              .status(200)
-              .json({ msg: 'ok', code, filePath: respose.filePath });
+        if (!fs.existsSync(filePath)) {
+          res.status(500).json({ msg: 'embeddings文件读取失败，无法上传' });
+          return;
+        }
+        uploadFileToOss(filePath, fileName + '.npy')
+          .then((respose: any) => {
+            res.status(200).json({ msg: 'ok', code, data: respose });
           })
-          .catch((err) => {
-            res
-              .status(200)
-              .json({ msg: 'embeddings文件上传失败', code: 5001, err });
+          .catch((err: any) => {
+            res.status(500).json({ msg: 'embeddings文件上传失败', err });
           });
       });
       break;

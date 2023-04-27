@@ -1,6 +1,9 @@
 import { siteBase } from '@/components/constant';
 import axios from 'axios';
+import ossClient from './ossClient';
+
 const fs = require('fs');
+const path = require('path');
 
 export function convertImageFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -54,7 +57,10 @@ export function base64ToArrayBuffer(base64: string) {
   return arr.buffer;
 }
 
-export const uploadFile = (file_path: Buffer | string, fileName: string) => {
+export const uploadFileToNetlify = (
+  file_path: Buffer | string,
+  fileName: string
+) => {
   const key = process.env.NETLIFY_KEY;
   const siteId = process.env.NETLIFY_SITE_ID;
   console.log(key, siteId);
@@ -75,5 +81,33 @@ export const uploadFile = (file_path: Buffer | string, fileName: string) => {
       return {
         filePath: siteBase + '/' + fileName,
       };
+    });
+};
+
+export const uploadFileToOss = (file_path: string, fileName: string) => {
+  // 上传文件
+  return ossClient
+    .put('sam/npy/' + fileName, file_path)
+    .then(function (result: any) {
+      console.log(`File "${fileName}" uploaded successfully to OSS.`);
+      // 删除本地文件
+      // 使用 fs.unlink() 方法删除文件
+      fs.unlink(file_path, (err: any) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log(`Local file ${file_path} has been removed.`);
+      });
+      return {
+        url: result.url,
+        fileName,
+        statusCode: result.statusCode,
+        statusMessage: result.statusMessage,
+      };
+    })
+    .catch(function (err: any) {
+      console.error(err);
+      process.exit(1);
     });
 };
