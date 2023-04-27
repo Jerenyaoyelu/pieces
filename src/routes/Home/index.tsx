@@ -36,7 +36,9 @@ const Home = () => {
           type="button"
           className="w-auto mr-4 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          <span className='flex items-center'>
+          <span onClick={() => {
+            alert('sorry, this feature is coming soon')
+          }} className='flex items-center'>
             <ArrowUpOnSquareIcon className='w-4 h-4 mr-1' />
             上传图片
           </span>
