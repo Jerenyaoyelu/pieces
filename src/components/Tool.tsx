@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useContext, useEffect, useState } from "react";
 import ImgContext from "./hooks/createContext";
 import { ToolProps } from "./helpers/Interfaces";
