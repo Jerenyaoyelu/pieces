@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev && node server.js",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "node postinstall.js",
     "lint": "next lint"
   },
   "dependencies": {

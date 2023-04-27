@@ -36,12 +36,13 @@ export default async function handler(
           .json({ message: 'AI学习图片失败, 由于' + data.toString() });
       });
       python.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        console.log('开始上传文件到云端');
         const filePath = path.join(
           process.cwd(),
           '.next/npy',
           fileName + '.npy'
         );
-        console.log(`child process exited with code ${code}`, filePath);
         uploadFile(filePath, fileName + '.npy')
           .then((respose) => {
             console.log(respose.filePath);

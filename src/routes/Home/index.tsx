@@ -6,12 +6,9 @@ import DisplayImg from '@/components/DisplayImage';
 const url = 'https://s.newscdn.cn/file/2023/04/f216f82d-4d11-407e-9bfd-2ee479323429.jpeg';
 
 const Home = () => {
-  const [embedding, setEmbedding] = useState<string>('/scripts/npy/71136cff-0adf-4666-9aec-a6d5d7320b4a.npy');
+  const [embedding, setEmbedding] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  let control = true;
-  useEffect(() => {
-    if (!control) return;
-    control = false;
+  const learnImg = () => {
     const filename = uuidv4();
     setLoading(true);
     generateImageEmbeddings(url, filename).then(({ filePath }: any) => {
@@ -19,9 +16,10 @@ const Home = () => {
     }).finally(() => {
       setLoading(false);
     })
-  }, [])
+  }
   return (
     <div>
+      <button className='bg-gray-400' onClick={learnImg}>开始AI学习图片</button>
       {loading ? (
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute' }}>AI学习图片中...</div>
