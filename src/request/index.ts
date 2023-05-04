@@ -1,4 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import CryptoJS from 'crypto-js';
+
 const base = location.origin;
 
 const request = axios.create({
@@ -26,9 +28,26 @@ request.interceptors.response.use(
   }
 );
 
-export const generateImageEmbeddings = (url: string, fileName: string) => {
+export const generateImageEmbeddings: APIParam<{
+  url: string;
+  fileName: string;
+}> = ({ url, fileName }) => {
   return request.post('api/embedding', {
     img: url,
     fileName,
   });
 };
+
+export const getOssCredentials: APIParam<any> = () => {
+  const secretKey = process.env.NEXT_PUBLIC_AES_KEY;
+  return request.get('api/getOssKeys').then((res) => {
+    const decrypted = CryptoJS.AES.decrypt(
+      res.data,
+      secretKey as string
+    ).toString(CryptoJS.enc.Utf8);
+    res.data = JSON.parse(decrypted);
+    return res;
+  });
+};
+
+type APIParam<T> = (p: T) => Promise<AxiosResponse>;

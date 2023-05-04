@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { spawn } from 'child_process';
-import { getBase64FromUrlServer, uploadFileToOss } from '@/utils/tools';
+import { getBase64FromUrlServer, uploadFileToOss } from '@/utils/serverUtil';
 import path from 'path';
 const fs = require('fs');
 
@@ -48,8 +48,17 @@ export default async function handler(
           res.status(500).json({ msg: 'embeddings文件读取失败，无法上传' });
           return;
         }
-        uploadFileToOss(filePath, fileName + '.npy')
+        uploadFileToOss(filePath, 'sam/npy/' + fileName + '.npy')
           .then((respose: any) => {
+            // 删除本地文件
+            // 使用 fs.unlink() 方法删除文件
+            fs.unlink(filePath, (err: any) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
+              console.log(`Local file ${filePath} has been removed.`);
+            });
             res.status(200).json({ msg: 'ok', code, data: respose });
           })
           .catch((err: any) => {

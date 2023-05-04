@@ -1,9 +1,7 @@
 import { siteBase } from '@/components/constant';
 import axios from 'axios';
 import ossClient from './ossClient';
-
 const fs = require('fs');
-const path = require('path');
 
 export function convertImageFileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -84,30 +82,26 @@ export const uploadFileToNetlify = (
     });
 };
 
-export const uploadFileToOss = (file_path: string, fileName: string) => {
+export const uploadFileToOss = (
+  file_path: string | Buffer | File | Blob,
+  fileName: string
+) => {
   // 上传文件
-  return ossClient
-    .put('sam/npy/' + fileName, file_path)
-    .then(function (result: any) {
-      console.log(`File "${fileName}" uploaded successfully to OSS.`);
-      // 删除本地文件
-      // 使用 fs.unlink() 方法删除文件
-      fs.unlink(file_path, (err: any) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log(`Local file ${file_path} has been removed.`);
+  return new Promise((resolve, reject) => {
+    ossClient
+      .put(fileName, file_path)
+      .then(function (result: any) {
+        console.log(`File "${fileName}" uploaded successfully to OSS.`);
+        resolve({
+          url: result.url,
+          fileName,
+          statusCode: result.statusCode,
+          statusMessage: result.statusMessage,
+        });
+      })
+      .catch(function (err: any) {
+        console.error(err);
+        reject(err);
       });
-      return {
-        url: result.url,
-        fileName,
-        statusCode: result.statusCode,
-        statusMessage: result.statusMessage,
-      };
-    })
-    .catch(function (err: any) {
-      console.error(err);
-      process.exit(1);
-    });
+  });
 };
