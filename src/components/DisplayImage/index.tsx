@@ -1,5 +1,5 @@
-import { InferenceSession, Tensor } from "onnxruntime-web";
-import React, { useContext, useEffect, useState } from "react";
+import { Tensor } from "onnxruntime-web";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { handleImageScale } from "../helpers/scaleHelper";
 import { modelScaleProps } from "../helpers/Interfaces";
 import { onnxMaskToImage } from "../helpers/maskUtils";
@@ -9,7 +9,8 @@ import ImgContext from "../hooks/createContext";
 const ort = require("onnxruntime-web");
 /* @ts-ignore */
 import npyjs from "npyjs";
-import { MODEL_DIR } from "../constant";
+import { useOnnxModel } from "@/utils/useOnnxModel";
+import { Loading } from "../Loading";
 
 interface ImgProp {
   embedding: string;
@@ -22,36 +23,24 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
     image: [, setImage],
     maskImg: [, setMaskImg],
   } = useContext(ImgContext)!;
-  const [model, setModel] = useState<InferenceSession | null>(null); // ONNX model
   const [tensor, setTensor] = useState<Tensor | null>(null); // Image embedding tensor
   const [modelScale, setModelScale] = useState<modelScaleProps | null>(null);
-
-  // Initialize the ONNX model. load the image, and load the SAM
-  // pre-computed image embedding
-  useEffect(() => {
-    const initModel = async () => {
-      try {
-        if (MODEL_DIR === undefined) return;
-        const model = await InferenceSession.create(MODEL_DIR);
-        setModel(model);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    // Initialize the ONNX model
-    initModel();
-  }, []);
+  const [onnxModel] = useOnnxModel();
+  const [loadingNpy, setLoadingNpy] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!model || !embedding || !image) return;
+    if (!onnxModel || !embedding || !image) return;
     // Load the image
     const url = new URL(image);
     loadImage(url);
     // Load the Segment Anything pre-computed embedding
+    setLoadingNpy(true);
     Promise.resolve(loadNpyTensor(embedding, "float32")).then(
       (embedding) => setTensor(embedding)
-    );
-  }, [embedding, image, model])
+    ).finally(() => {
+      setLoadingNpy(false);
+    });
+  }, [embedding, image, onnxModel])
 
   const loadImage = async (url: URL) => {
     try {
@@ -89,7 +78,7 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
   const runONNX = async () => {
     try {
       if (
-        model === null ||
+        onnxModel === null ||
         clicks === null ||
         tensor === null ||
         modelScale === null
@@ -105,8 +94,8 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
         });
         if (feeds === undefined) return;
         // Run the SAM ONNX model with the feeds returned from modelData()
-        const results = await model.run(feeds);
-        const output = results[model.outputNames[0]];
+        const results = await onnxModel.run(feeds);
+        const output = results[onnxModel.outputNames[0]];
         // The predicted mask returned from the ONNX model is an array which is 
         // rendered as an HTML image using onnxMaskToImage() from maskUtils.tsx.
         setMaskImg(onnxMaskToImage(output.data, output.dims[2], output.dims[3]));
@@ -116,7 +105,12 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
     }
   };
 
-  return <Stage />;
+  return <>
+    {loadingNpy && (
+      <Loading text='AI解图中...' />
+    )}
+    <Stage />
+  </>;
 };
 
 export default DisplayImg;

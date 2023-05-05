@@ -1,10 +1,13 @@
 import { generateImageEmbeddings, getOssCredentials } from '@/request';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DisplayImg from '@/components/DisplayImage';
 import { example } from '@/components/constant';
 import { CloudUploadOutlined } from '@ant-design/icons';
 import { toast } from '@/components/Toast';
+import Image from 'next/image';
+import { Loading } from '@/components/Loading';
+
 const OSS = require('ali-oss');
 
 const Home = () => {
@@ -30,21 +33,45 @@ const Home = () => {
       setLoading(false);
     })
   }
+
+  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target?.files?.[0];
+    const id = uuidv4();
+    if (file) {
+      const [_, ext] = file.type.split('/');
+      setUploading(true);
+      const res: any = await getOssCredentials({});
+      const { accessKeyId,
+        accessKeySecret,
+        bucketName,
+        endpoint } = res.data;
+      const client = new OSS({
+        accessKeyId,
+        accessKeySecret,
+        bucket: bucketName,
+        endpoint
+      })
+      client.put('sam/assets/images/' + id + '.' + ext, file).then((result: any) => {
+        setUrl(result.url)
+      }).finally(() => {
+        setUploading(false);
+      })
+    }
+  }
+
   return (
     <div className='flex flex-col items-center justify-center mt-20'>
-      <div>
-        {loading ? (
-          <div style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute' }}>AI学习图片中...</div>
-          </div>
-        ) : (
+      <div className='relative'>
+        {loading && (
+          <Loading text='AI学习图片中...' />
+        )}
+        {
           embedding === example.embedding && url !== example.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt="" />
+            <Image src={url} alt="" />
           ) : (
             <DisplayImg embedding={embedding} image={url} />
           )
-        )}
+        }
       </div>
       <div className='mt-8 text-center'>
         <div className='flex items-center mb-6'>
@@ -58,30 +85,9 @@ const Home = () => {
               multiple={false}
               type="file"
               accept='image/*'
-              onChange={async (e) => {
-                const file = e.target?.files?.[0];
-                const id = uuidv4();
-                if (file) {
-                  const [_, ext] = file.type.split('/');
-                  setUploading(true);
-                  const res: any = await getOssCredentials({})
-                  const { accessKeyId,
-                    accessKeySecret,
-                    bucketName,
-                    endpoint } = res.data;
-                  const client = new OSS({
-                    accessKeyId,
-                    accessKeySecret,
-                    bucket: bucketName,
-                    endpoint
-                  })
-                  client.put('sam/assets/images/' + id + '.' + ext, file).then((result: any) => {
-                    setUrl(result.url)
-                  }).finally(() => {
-                    setUploading(false);
-                  })
-                }
-              }} className="w-full opacity-0 absolute block h-full z-0 cursor-pointer" />
+              onChange={handleUpload}
+              className="w-full opacity-0 absolute block h-full z-0 cursor-pointer"
+            />
           </button></div>
         <button
           type="button"

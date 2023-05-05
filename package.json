@@ -33,7 +33,8 @@
     "tailwindcss": "3.3.1",
     "typescript": "5.0.4",
     "underscore": "^1.13.6",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "zustand": "^4.3.8"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
