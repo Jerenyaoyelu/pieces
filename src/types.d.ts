@@ -1,0 +1,1 @@
+type ImageSourceType = 'link' | 'local';

@@ -3,24 +3,6 @@ import axios from 'axios';
 import ossClient from './ossClient';
 const fs = require('fs');
 
-export function convertImageFileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64String = reader.result?.toString();
-      if (base64String) {
-        resolve(base64String.split(',')[1]);
-      } else {
-        reject(new Error('Failed to convert image to base64 string'));
-      }
-    };
-    reader.onerror = () => {
-      reject(new Error('Failed to read image file'));
-    };
-  });
-}
-
 export async function imageUrlToBase64Client(url: string): Promise<string> {
   const response = await fetch(url);
   const blob = await response.blob();

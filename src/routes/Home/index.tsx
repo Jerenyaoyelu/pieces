@@ -1,5 +1,5 @@
 import { generateImageEmbeddings, getOssCredentials } from '@/request';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DisplayImg from '@/components/DisplayImage';
 import { example } from '@/components/constant';
@@ -7,14 +7,13 @@ import { CloudUploadOutlined } from '@ant-design/icons';
 import { toast } from '@/components/Toast';
 import Image from 'next/image';
 import { Loading } from '@/components/Loading';
-
-const OSS = require('ali-oss');
+import { convertImageFileToBase64 } from '@/utils/clientUtil';
 
 const Home = () => {
   const [embedding, setEmbedding] = useState<string>(example.embedding);
   const [loading, setLoading] = useState<boolean>(false);
   const [url, setUrl] = useState<string>(example.url);
-  const [uploading, setUploading] = useState<boolean>(false);
+  const type = useRef<ImageSourceType>('link');
 
   const learnImg = () => {
     if (loading) return;
@@ -27,7 +26,7 @@ const Home = () => {
     }
     const fileName = uuidv4();
     setLoading(true);
-    generateImageEmbeddings({ url, fileName }).then(({ data }: any) => {
+    generateImageEmbeddings({ url: type.current === 'local' ? url.split(',')[1] : url, fileName, type: type.current }).then(({ data }: any) => {
       setEmbedding(data.url);
     }).finally(() => {
       setLoading(false);
@@ -36,25 +35,10 @@ const Home = () => {
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0];
-    const id = uuidv4();
     if (file) {
-      const [_, ext] = file.type.split('/');
-      setUploading(true);
-      const res: any = await getOssCredentials({});
-      const { accessKeyId,
-        accessKeySecret,
-        bucketName,
-        endpoint } = res.data;
-      const client = new OSS({
-        accessKeyId,
-        accessKeySecret,
-        bucket: bucketName,
-        endpoint
-      })
-      client.put('sam/assets/images/' + id + '.' + ext, file).then((result: any) => {
-        setUrl(result.url)
-      }).finally(() => {
-        setUploading(false);
+      type.current = 'local';
+      convertImageFileToBase64(file).then((base64) => {
+        setUrl(base64);
       })
     }
   }
@@ -67,7 +51,7 @@ const Home = () => {
         )}
         {
           embedding === example.embedding && url !== example.url ? (
-            <Image src={url} alt="" />
+            <Image src={url} alt="" width={860} height={500} />
           ) : (
             <DisplayImg embedding={embedding} image={url} />
           )

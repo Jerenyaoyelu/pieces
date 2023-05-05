@@ -9,6 +9,12 @@ from segment_anything import sam_model_registry, SamPredictor
 project_dir = os.path.dirname(os.path.abspath(__file__))
 checkpoint = os.path.join(project_dir, "sam_vit_h_4b8939.pth")
 model_type = "vit_h"
+# 获取根目录
+root_dir = os.path.dirname(os.path.dirname(project_dir))
+save_dir = os.path.join(root_dir, "public/static/npy")
+
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
 
 
 def base64_to_ndarray(base64_string):
@@ -39,7 +45,7 @@ def getEmbeddings(
     predictor.set_image(img_np)
     image_embedding = predictor.get_image_embedding().cpu().numpy()
     # 生成的文件存到指定地方
-    np.save(os.path.join(project_dir, "npy", output), image_embedding)
+    np.save(os.path.join(save_dir, output), image_embedding)
 
 
 try:
