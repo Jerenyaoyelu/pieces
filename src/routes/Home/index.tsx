@@ -1,52 +1,81 @@
-import { generateImageEmbeddings } from '@/request';
-import { useEffect, useState } from 'react';
+import { generateImageEmbeddings, getOssCredentials } from '@/request';
+import { ChangeEvent, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DisplayImg from '@/components/DisplayImage';
 import { example } from '@/components/constant';
-import {
-  ArrowUpOnSquareIcon,
-} from '@heroicons/react/20/solid'
+import { CloudUploadOutlined } from '@ant-design/icons';
+import { toast } from '@/components/Toast';
+import Image from 'next/image';
+import { Loading } from '@/components/Loading';
+import { convertImageFileToBase64 } from '@/utils/clientUtil';
 
 const Home = () => {
   const [embedding, setEmbedding] = useState<string>(example.embedding);
   const [loading, setLoading] = useState<boolean>(false);
   const [url, setUrl] = useState<string>(example.url);
+  const type = useRef<ImageSourceType>('link');
 
   const learnImg = () => {
-    if (url === example.url || loading) return;
-    const filename = uuidv4();
+    if (loading) return;
+    if (url === example.url) {
+      toast({
+        content: '请先输入图片地址或者上传本地图片！',
+        type: 'error'
+      })
+      return;
+    }
+    const fileName = uuidv4();
     setLoading(true);
-    generateImageEmbeddings(url, filename).then(({ data }: any) => {
+    generateImageEmbeddings({ url: type.current === 'local' ? url.split(',')[1] : url, fileName, type: type.current }).then(({ data }: any) => {
       setEmbedding(data.url);
     }).finally(() => {
       setLoading(false);
     })
   }
+
+  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target?.files?.[0];
+    if (file) {
+      type.current = 'local';
+      convertImageFileToBase64(file).then((base64) => {
+        setUrl(base64);
+      })
+    }
+  }
+
   return (
     <div className='flex flex-col items-center justify-center mt-20'>
-      {loading ? (
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute' }}>AI学习图片中...</div>
-        </div>
-      ) : (
-        <DisplayImg embedding={embedding} image={url} />
-      )}
-      <div className='mt-8'>
-        <button
-          type="button"
-          className="w-auto mr-4 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          <span onClick={() => {
-            alert('sorry, this feature is coming soon')
-          }} className='flex items-center'>
-            <ArrowUpOnSquareIcon className='w-4 h-4 mr-1' />
+      <div className='relative'>
+        {loading && (
+          <Loading text='AI学习图片中...' />
+        )}
+        {
+          embedding === example.embedding && url !== example.url ? (
+            <Image src={url} alt="" width={860} height={500} />
+          ) : (
+            <DisplayImg embedding={embedding} image={url} />
+          )
+        }
+      </div>
+      <div className='mt-8 text-center'>
+        <div className='flex items-center mb-6'>
+          <input type="text" className='input input-bordered input-primary w-full max-w-xs' placeholder='Input the image link' />
+          <button
+            className='btn btn-primary relative ml-4'
+          >
+            <CloudUploadOutlined className='mr-2 text-lg' />
             上传图片
-          </span>
-          <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-        </button>
+            <input
+              multiple={false}
+              type="file"
+              accept='image/*'
+              onChange={handleUpload}
+              className="w-full opacity-0 absolute block h-full z-0 cursor-pointer"
+            />
+          </button></div>
         <button
           type="button"
-          className={`text-sm font-semibold text-gray-800 ${url === example.url ? 'cursor-not-allowed' : ''}`}
+          className={`text-sm font-semibold text-gray-800`}
           onClick={learnImg}
         >
           开始AI解图<span aria-hidden="true">&rarr;</span>

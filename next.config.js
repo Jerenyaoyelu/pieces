@@ -20,10 +20,6 @@ module.exports = {
               from: 'node_modules/onnxruntime-web/dist/*.wasm',
               to: path.join(__dirname, '.next/static/chunks/[name][ext]'),
             },
-            {
-              from: './src/scripts/npy',
-              to: './npy',
-            },
           ],
         })
       );
