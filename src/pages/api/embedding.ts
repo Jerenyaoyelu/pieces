@@ -24,9 +24,17 @@ export default async function handler(
       if (type === 'link') {
         base64str = await getBase64FromUrlServer(img);
       }
+
+      const scriptPath = path.join(
+        process.cwd(),
+        'public',
+        'scripts',
+        'embedding.py'
+      );
+
       const python = spawn(
         'python3',
-        ['src/scripts/embedding.py', base64str, 'False', fileName],
+        [scriptPath, base64str, 'False', fileName],
         {
           env: process.env,
         }
