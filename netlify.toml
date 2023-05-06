@@ -1,4 +1,9 @@
 [build]
   publish = ".next"
-  command = "python3 --version && yarn build && chmod +x python_path.sh && ./python_path.sh"
-  environment = { PYTHON_VERSION = "3.9" }
+  functions = "netlify/functions"
+
+[dev]
+  functions = "netlify/functions"
+
+[context.production.environment]
+  PYTHON_VERSION = "3.8.10"
