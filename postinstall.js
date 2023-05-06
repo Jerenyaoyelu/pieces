@@ -6,7 +6,8 @@ const url =
   'https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth';
 const filePath = path.join(
   process.cwd(),
-  'src/scripts',
+  'public',
+  'scripts',
   'sam_vit_h_4b8939.pth'
 );
 
