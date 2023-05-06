@@ -1,0 +1,4 @@
+[build]
+  publish = "out"
+  command = "python3 --version && yarn build"
+  environment = { PYTHON_VERSION = "3.9" }
