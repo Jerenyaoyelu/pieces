@@ -1,4 +1,2 @@
 [build]
-  publish = ".next"
-  command = "python3 --version && yarn build"
-  environment = { PYTHON_VERSION = "3.9" }
+  functions="functions"
