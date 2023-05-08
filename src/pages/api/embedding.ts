@@ -32,6 +32,13 @@ export default async function handler(
         'embedding.py'
       );
 
+      console.log('path', scriptPath);
+
+      if (!fs.existsSync(scriptPath)) {
+        res.status(500).json({ message: 'cannot find python script' });
+        return;
+      }
+
       const python = spawn(
         'python3',
         [scriptPath, base64str, 'False', fileName],
