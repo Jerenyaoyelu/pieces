@@ -52,4 +52,8 @@ export const getOssCredentials: APIParam<any> = () => {
   });
 };
 
+export const getDetails = () => {
+  return request.get('api/getPath');
+};
+
 type APIParam<T> = (p: T) => Promise<AxiosResponse>;
