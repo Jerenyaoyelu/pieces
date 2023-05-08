@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { type AxiosResponse } from 'axios';
 import CryptoJS from 'crypto-js';
 
 const base = location.origin;

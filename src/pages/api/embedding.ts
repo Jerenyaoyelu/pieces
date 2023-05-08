@@ -4,9 +4,9 @@ import axios from 'axios';
 
 const baseUrl =
   process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8888/'
+    ? 'http://localhost:9999/'
     : 'https://pieces-sam.netlify.app/';
-const pythonUrl = baseUrl + '.netlify/functions/runScripts/';
+const pythonUrl = baseUrl + '.netlify/functions/runScripts';
 
 export default async function handler(
   req: NextApiRequest,

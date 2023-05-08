@@ -1,12 +1,14 @@
 const { spawn } = require('child_process');
+const path = require('path');
 
 exports.handler = async (event, context) => {
   const { base64str, fileName } = JSON.parse(event.body);
-
+  const scriptPath = path.join(__dirname, 'embedding.py');
+  console.log('data', fileName, scriptPath);
   return new Promise((resolve, reject) => {
     const pythonProcess = spawn(
       'python3',
-      ['embedding.py', base64str, 'False', fileName],
+      [scriptPath, base64str, 'False', fileName],
       {
         env: process.env,
       }
@@ -23,9 +25,12 @@ exports.handler = async (event, context) => {
 
     pythonProcess.on('close', (code) => {
       if (code !== 0) {
-        reject({
-          statusCode: 500,
-          body: JSON.stringify({ error: 'Python script execution failed.' }),
+        resolve({
+          statusCode: 200,
+          body: JSON.stringify({
+            error: 'Python script execution failed.',
+            statusCode: 500,
+          }),
         });
       } else {
         console.log(`child process exited with code ${code}`);

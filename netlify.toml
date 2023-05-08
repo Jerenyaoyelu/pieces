@@ -5,5 +5,9 @@
 [dev]
   functions = "netlify/functions"
 
+[functions]
+  [functions.timeout]
+  duration = 60 # 设置超时时间为 60 秒钟
+
 [context.production.environment]
   PYTHON_VERSION = "3.8.10"

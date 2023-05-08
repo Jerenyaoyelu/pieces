@@ -8,6 +8,6 @@ if [[ $login_status == *"Failed"* ]]; then
   echo "Please log in to Netlify using 'netlify login'"
   exit 1
 fi
-
-netlify dev --functions=netlify/functions
+# netlify dev 会启动edge functions, 因为需要下载raw.githubusercontent.com的内容，但无法连接会导致报错
+netlify functions:serve&yarn dev
 wait
