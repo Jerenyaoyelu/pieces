@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { spawn } from 'child_process';
 import { getBase64FromUrlServer, uploadFileToOss } from '@/utils/serverUtil';
 import path from 'path';
-const fs = require('fs');
+import spawn from 'cross-spawn';
 
 export default async function handler(
   req: NextApiRequest,
@@ -39,10 +38,10 @@ export default async function handler(
           env: process.env,
         }
       );
-      python.stdout.on('data', (data) => {
+      python.stdout?.on('data', (data) => {
         console.log('AI解析图片中，请稍后...');
       });
-      python.stderr.on('data', (data) => {
+      python.stderr?.on('data', (data) => {
         res
           .status(500)
           .json({ message: 'AI学习图片失败, 由于' + data.toString() });

@@ -1,4 +1,4 @@
 [build]
   publish = ".next"
-  command = "python3 --version && yarn build"
+  command = "python3 --version && yarn build && chmod +x python_path.sh && ./python_path.sh"
   environment = { PYTHON_VERSION = "3.9" }
