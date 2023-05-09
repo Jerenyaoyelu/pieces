@@ -31,12 +31,10 @@ request.interceptors.response.use(
 export const generateImageEmbeddings: APIParam<{
   url: string;
   fileName: string;
-  type: 'link' | 'local';
-}> = ({ url, fileName, type }) => {
+}> = ({ url, fileName }) => {
   return request.post('api/embedding', {
     img: url,
     fileName,
-    type,
   });
 };
 

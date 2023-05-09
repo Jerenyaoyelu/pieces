@@ -15,14 +15,10 @@ export default async function handler(
       res.status(200).json({ name: 'ok' });
       break;
     case 'POST':
-      const { img, fileName, type } = body;
+      const { img, fileName } = body;
       if (!fileName) {
         res.status(400).json({ message: 'fileName is missing' });
         return;
-      }
-      let base64str = img;
-      if (type === 'link') {
-        base64str = await getBase64FromUrlServer(img);
       }
 
       const scriptPath = path.join(
@@ -39,13 +35,9 @@ export default async function handler(
         return;
       }
 
-      const python = spawn(
-        'python3',
-        [scriptPath, base64str, 'False', fileName],
-        {
-          env: process.env,
-        }
-      );
+      const python = spawn('python3', [scriptPath, img, 'False', fileName], {
+        env: process.env,
+      });
       python.stdout.on('data', (data) => {
         console.log('AI解析图片中，请稍后...');
       });
