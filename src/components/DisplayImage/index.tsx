@@ -11,6 +11,7 @@ const ort = require("onnxruntime-web");
 import npyjs from "npyjs";
 import { useOnnxModel } from "@/utils/useOnnxModel";
 import { Loading } from "../Loading";
+import { drawBorder } from "../drawBorder";
 
 interface ImgProp {
   embedding: string;
@@ -98,7 +99,8 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
         const output = results[onnxModel.outputNames[0]];
         // The predicted mask returned from the ONNX model is an array which is 
         // rendered as an HTML image using onnxMaskToImage() from maskUtils.tsx.
-        setMaskImg(onnxMaskToImage(output.data, output.dims[2], output.dims[3]));
+        const maskImg = onnxMaskToImage(output.data, output.dims[2], output.dims[3]);
+        setMaskImg(maskImg);
       }
     } catch (e) {
       console.log(e);
