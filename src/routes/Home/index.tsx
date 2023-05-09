@@ -2,7 +2,7 @@ import { generateImageEmbeddings, getDetails, getOssCredentials } from '@/reques
 import { ChangeEvent, SetStateAction, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DisplayImg from '@/components/DisplayImage';
-import { example } from '@/components/constant';
+import { example, isProduction } from '@/components/constant';
 import { CloudUploadOutlined } from '@ant-design/icons';
 import { toast } from '@/components/Toast';
 import Image from 'next/image';
@@ -58,6 +58,13 @@ const Home = () => {
       <div className='mt-8 text-center'>
         <button
           className='btn btn-primary relative mr-4'
+          onClick={() => {
+            if (isProduction) {
+              toast({
+                content: "sorry, netlify doesn't support python script, so upload is only available locally",
+              })
+            }
+          }}
         >
           <CloudUploadOutlined className='mr-2 text-lg' />
           上传图片
@@ -66,7 +73,7 @@ const Home = () => {
             type="file"
             accept='image/*'
             onChange={handleUpload}
-            className="w-full opacity-0 absolute block h-full z-0 cursor-pointer"
+            className={`w-full opacity-0 absolute block h-full z-0 cursor-pointer ${isProduction ? 'pointer-events-none' : ''}`}
           />
         </button>
         <button

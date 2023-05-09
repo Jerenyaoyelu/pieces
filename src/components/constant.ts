@@ -10,3 +10,5 @@ export const example = {
   embedding: '/static/npy/default.npy',
   // 'https://jerenlu.oss-cn-beijing.aliyuncs.com/sam/npy/461e2320-67c4-4f66-8e3e-f030543179a4.npy',
 };
+
+export const isProduction = process.env.NODE_ENV !== 'development';
