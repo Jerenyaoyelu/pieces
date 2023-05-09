@@ -1,8 +1,8 @@
 import { generateImageEmbeddings, getDetails, getOssCredentials } from '@/request';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, SetStateAction, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DisplayImg from '@/components/DisplayImage';
-import { example } from '@/components/constant';
+import { example, isProduction } from '@/components/constant';
 import { CloudUploadOutlined } from '@ant-design/icons';
 import { toast } from '@/components/Toast';
 import Image from 'next/image';
@@ -13,39 +13,28 @@ const Home = () => {
   const [embedding, setEmbedding] = useState<string>(example.embedding);
   const [loading, setLoading] = useState<boolean>(false);
   const [url, setUrl] = useState<string>(example.url);
-  const type = useRef<ImageSourceType>('link');
-  const [log, setLog] = useState<string>('');
-  const [can, setCan] = useState<boolean>(false);
 
   const learnImg = () => {
     if (loading) return;
     if (url === example.url) {
       toast({
-        content: '请先输入图片地址或者上传本地图片！',
+        content: '请先上传本地图片！',
         type: 'error'
       })
       return;
     }
     const fileName = uuidv4();
     setLoading(true);
-    generateImageEmbeddings({ url: type.current === 'local' ? url.split(',')[1] : url, fileName, type: type.current }).then(({ data }: any) => {
+    generateImageEmbeddings({ url: url.split(',')[1], fileName }).then(({ data }: any) => {
       setEmbedding(data.url);
     }).finally(() => {
       setLoading(false);
     })
   }
 
-  const getDetail = () => {
-    getDetails().then((res: any) => {
-      setCan(res.can);
-      setLog(res.path);
-    })
-  }
-
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0];
     if (file) {
-      type.current = 'local';
       convertImageFileToBase64(file).then((base64) => {
         setUrl(base64);
       })
@@ -67,21 +56,26 @@ const Home = () => {
         }
       </div>
       <div className='mt-8 text-center'>
-        <div className='flex items-center mb-6'>
-          <input type="text" className='input input-bordered input-primary w-full max-w-xs' placeholder='Input the image link' />
-          <button
-            className='btn btn-primary relative ml-4'
-          >
-            <CloudUploadOutlined className='mr-2 text-lg' />
-            上传图片
-            <input
-              multiple={false}
-              type="file"
-              accept='image/*'
-              onChange={handleUpload}
-              className="w-full opacity-0 absolute block h-full z-0 cursor-pointer"
-            />
-          </button></div>
+        <button
+          className='btn btn-primary relative mr-4'
+          onClick={() => {
+            if (isProduction) {
+              toast({
+                content: "sorry, netlify doesn't support python script, so upload is only available locally",
+              })
+            }
+          }}
+        >
+          <CloudUploadOutlined className='mr-2 text-lg' />
+          上传图片
+          <input
+            multiple={false}
+            type="file"
+            accept='image/*'
+            onChange={handleUpload}
+            className={`w-full opacity-0 absolute block h-full z-0 cursor-pointer ${isProduction ? 'pointer-events-none' : ''}`}
+          />
+        </button>
         <button
           type="button"
           className={`text-sm font-semibold text-gray-800`}
@@ -89,15 +83,6 @@ const Home = () => {
         >
           开始AI解图<span aria-hidden="true">&rarr;</span>
         </button>
-      </div>
-      <div>
-        <button className='btn' onClick={getDetail}>获取地址</button>
-        <div>
-          脚本路径：{log}
-        </div>
-        <div>
-          能找到吗？：{can + ''}
-        </div>
       </div>
     </div>
   )

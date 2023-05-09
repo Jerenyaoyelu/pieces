@@ -3,20 +3,6 @@ import axios from 'axios';
 import ossClient from './ossClient';
 const fs = require('fs');
 
-export async function imageUrlToBase64Client(url: string): Promise<string> {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64Data = reader.result?.toString().split(',')[1] || '';
-      resolve(base64Data as string);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
 export async function getBase64FromUrlServer(url: string): Promise<string> {
   const response = await axios.get(url, {
     responseType: 'arraybuffer',

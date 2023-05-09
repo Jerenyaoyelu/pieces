@@ -4,12 +4,14 @@ import React, { useContext, useEffect, useState } from "react";
 import ImgContext from "./hooks/createContext";
 import { ToolProps } from "./helpers/Interfaces";
 import * as _ from "underscore";
+import { drawBorder } from "./drawBorder";
 
 const Tool = ({ handleMouseMove }: ToolProps) => {
   const {
     image: [image],
     maskImg: [maskImg, setMaskImg],
   } = useContext(ImgContext)!;
+  const [maskImgUrl, setMaskImgUrl] = useState<string>('');
 
   // Determine if we should shrink or grow the images to match the
   // width or the height of the page and setup a ResizeObserver to
@@ -37,8 +39,16 @@ const Tool = ({ handleMouseMove }: ToolProps) => {
     };
   }, [image]);
 
+  useEffect(() => {
+    if (maskImg?.src) {
+      drawBorder(maskImg.src).then((res: string) => {
+        setMaskImgUrl(res);
+      })
+    }
+  }, [maskImg])
+
   const imageClasses = "";
-  const maskImageClasses = `absolute opacity-40 pointer-events-none`;
+  const maskImageClasses = `absolute pointer-events-none`;
 
   // Render the image and the predicted mask image on top
   return (
@@ -47,7 +57,7 @@ const Tool = ({ handleMouseMove }: ToolProps) => {
         <img
           onMouseMove={handleMouseMove}
           onMouseOut={() => _.defer(() => setMaskImg(null))}
-          onTouchStart={handleMouseMove}
+          onTouchEnd={handleMouseMove}
           src={image.src}
           className={`${shouldFitToWidth ? "w-full" : "h-full"
             } ${imageClasses}`}
@@ -55,7 +65,7 @@ const Tool = ({ handleMouseMove }: ToolProps) => {
       )}
       {maskImg && (
         <img
-          src={maskImg.src}
+          src={maskImgUrl}
           className={`${shouldFitToWidth ? "w-full" : "h-full"
             } ${maskImageClasses}`}
         ></img>
