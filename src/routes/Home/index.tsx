@@ -14,8 +14,6 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [url, setUrl] = useState<string>(example.url);
   const type = useRef<ImageSourceType>('link');
-  const [log, setLog] = useState<string>('');
-  const [can, setCan] = useState<boolean>(false);
 
   const learnImg = () => {
     if (loading) return;
@@ -32,13 +30,6 @@ const Home = () => {
       setEmbedding(data.url);
     }).finally(() => {
       setLoading(false);
-    })
-  }
-
-  const getDetail = () => {
-    getDetails().then((res: any) => {
-      setCan(res.can);
-      setLog(res.path);
     })
   }
 
@@ -89,15 +80,6 @@ const Home = () => {
         >
           开始AI解图<span aria-hidden="true">&rarr;</span>
         </button>
-      </div>
-      <div>
-        <button className='btn' onClick={getDetail}>获取地址</button>
-        <div>
-          脚本路径：{log}
-        </div>
-        <div>
-          能找到吗？：{can + ''}
-        </div>
       </div>
     </div>
   )
