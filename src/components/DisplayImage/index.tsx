@@ -11,7 +11,6 @@ const ort = require("onnxruntime-web");
 import npyjs from "npyjs";
 import { useOnnxModel } from "@/utils/useOnnxModel";
 import { Loading } from "../Loading";
-import { drawBorder } from "../drawBorder";
 
 interface ImgProp {
   embedding: string;
@@ -107,12 +106,15 @@ const DisplayImg: React.FC<ImgProp> = ({ embedding, image }) => {
     }
   };
 
-  return <>
-    {loadingNpy && (
-      <Loading text='AI解图中...' />
-    )}
-    <Stage />
-  </>;
+
+  return (
+    <>
+      {loadingNpy && (
+        <Loading text='AI解图中...' />
+      )}
+      <Stage />
+    </>
+  )
 };
 
 export default DisplayImg;

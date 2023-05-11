@@ -48,13 +48,18 @@ const Tool = ({ handleMouseMove }: ToolProps) => {
   }, [maskImg])
 
   const imageClasses = "";
-  const maskImageClasses = `absolute pointer-events-none`;
+  const maskImageClasses = `absolute`;
+
+  const handleDown = () => {
+
+  }
 
   // Render the image and the predicted mask image on top
   return (
     <>
       {image && (
         <img
+          onPointerDown={handleDown}
           onMouseMove={handleMouseMove}
           onMouseOut={() => _.defer(() => setMaskImg(null))}
           onTouchEnd={handleMouseMove}
@@ -65,6 +70,12 @@ const Tool = ({ handleMouseMove }: ToolProps) => {
       )}
       {maskImg && (
         <img
+          draggable
+          onDragStart={(e) => {
+            console.log('dragggg');
+            e.dataTransfer.setData('text/plain', maskImg.src);
+          }}
+          onMouseMove={handleMouseMove}
           src={maskImgUrl}
           className={`${shouldFitToWidth ? "w-full" : "h-full"
             } ${maskImageClasses}`}
